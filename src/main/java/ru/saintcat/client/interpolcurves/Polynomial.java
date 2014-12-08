@@ -5,7 +5,6 @@
 package ru.saintcat.client.interpolcurves;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.ops.CommonOps;
@@ -21,7 +20,7 @@ public class Polynomial {
     public DenseMatrix64F Sx;
     public DenseMatrix64F Sy;
 
-    public List<Vector2D> Normal(List<Vector2D> points, double dt, boolean secondDerivative, boolean loop) {
+    public List<Vector2D> normal(List<Vector2D> points, double dt, boolean secondDerivative, boolean loop) {
         List<Vector2D> normalPoints = new ArrayList<>(points);
         if (loop) {
             normalPoints.add(normalPoints.get(0));
@@ -43,36 +42,29 @@ public class Polynomial {
         Ux = DenseMatrix64F.wrap(1, normalPoints.size(), tmpX);
         Uy = DenseMatrix64F.wrap(1, normalPoints.size(), tmpY);
 
-        System.out.println("Ux");
-        Ux.print();
-        System.out.println("Uy");
-        Uy.print();
         DenseMatrix64F Qmn = new DenseMatrix64F(m + 1, m + 1);
 
         if (secondDerivative) {
-            Qmn = GetQmndd(m, n);
+            Qmn = getQmndd(m, n);
         } else {
-            Qmn = GetQmnd(m, n);
+            Qmn = getQmnd(m, n);
         }
 
-        System.out.println("Qmn");
-        Qmn.print();
         if (CommonOps.det(Qmn) == 0) {
-            return new ArrayList<Vector2D>();
+            return new ArrayList<>();
         }
 
         CommonOps.invert(Qmn);
-        Qmn.print();
         Sx = new DenseMatrix64F(Ux.numRows, Qmn.numCols);
         Sy = new DenseMatrix64F(Ux.numRows, Qmn.numCols);
         CommonOps.mult(Ux, Qmn, Sx);
         CommonOps.mult(Uy, Qmn, Sy);
 
-        List<Vector2D> res = new ArrayList<Vector2D>();
+        List<Vector2D> res = new ArrayList<>();
         for (double t = 0.0; t <= n - 1; t += dt) {
             double sumX = 0.0;
             double sumY = 0.0;
-            double[] Tm = GetTm(m, t);
+            double[] Tm = getTm(m, t);
 
             for (int i = 0; i <= m; i++) {
                 sumX += Sx.get(0, i) * Tm[i];
@@ -84,7 +76,7 @@ public class Polynomial {
         return res;
     }
 
-    public List<Vector2D> Chord(List<Vector2D> points, double dt, boolean secondDerivative, boolean loop) {
+    public List<Vector2D> chord(List<Vector2D> points, double dt, boolean secondDerivative, boolean loop) {
         List<Vector2D> normalPoints = new ArrayList<Vector2D>(points);
         if (loop) {
             normalPoints.add(normalPoints.get(0));
@@ -109,12 +101,12 @@ public class Polynomial {
         DenseMatrix64F Qmn = new DenseMatrix64F(m + 1, m + 1);
 
         if (secondDerivative) {
-            Qmn = GetChordQmndd(m, normalPoints, n);
+            Qmn = getChordQmndd(m, normalPoints, n);
         } else {
-            Qmn = GetChordQmnd(m, normalPoints, n);
+            Qmn = getChordQmnd(m, normalPoints, n);
         }
         if (CommonOps.det(Qmn) == 0) {
-            return new ArrayList<Vector2D>();
+            return new ArrayList<>();
         }
 
         CommonOps.invert(Qmn);
@@ -124,16 +116,16 @@ public class Polynomial {
         CommonOps.mult(Ux, Qmn, Sx);
         CommonOps.mult(Uy, Qmn, Sy);
 
-        List<Vector2D> res = new ArrayList<Vector2D>();
+        List<Vector2D> res = new ArrayList<>();
 
         double length = 0;
         for (int i = 0; i < n - 1; i++) {
             length += Math.abs(getLength(normalPoints.get(i + 1).x, normalPoints.get(i + 1).y, normalPoints.get(i).x, normalPoints.get(i).y));
         }
-        for (double t = 0; t <= length; t += length / 10000) {
+        for (double t = 0; t <= length; t += length / 1000) {
             double sumX = 0.0;
             double sumY = 0.0;
-            double[] Tm = GetTm(m, t);
+            double[] Tm = getTm(m, t);
 
             for (int j = 0; j <= m; j++) {
                 sumX += Sx.get(0, j) * Tm[j];
@@ -149,11 +141,11 @@ public class Polynomial {
         return Math.sqrt(Math.pow(b1 - a1, 2) + Math.pow(b - a, 2));
     }
 
-    public DenseMatrix64F GetQmn(int m) // Матрица Вандермонда
+    public DenseMatrix64F getQmn(int m) // Матрица Вандермонда
     {
         DenseMatrix64F T = new DenseMatrix64F(m + 1, m + 1);
         for (int i = 0; i <= m; i++) {
-            double[] tm = GetTm(m, i);
+            double[] tm = getTm(m, i);
             for (int j = 0; j < tm.length; j++) {
                 T.set(j, i, tm[j]);
             }
@@ -163,25 +155,19 @@ public class Polynomial {
         return T;
     }
 
-    public DenseMatrix64F GetQmnd(int m, int n) // Матрица Вандермонда
+    public DenseMatrix64F getQmnd(int m, int n) // Матрица Вандермонда
     {
         DenseMatrix64F T = new DenseMatrix64F(m + 1, m + 1);
         for (int i = 0; i < m; i++) {
-            double[] tm = GetTm(m, i);
+            double[] tm = getTm(m, i);
             for (int j = 0; j < tm.length; j++) {
                 T.set(j, i, tm[j]);
             }
         }
-        System.out.println("T");
-        T.print();
         // first derivative
         double[] resT = new double[m + 1];
-        double[] tmpT0 = GetTmd(m, 0);
-        System.out.println("tmpT0");
-        System.out.println(Arrays.toString(tmpT0));
-        System.out.println("tmpTn");
-        double[] tmpTn = GetTmd(m, n - 1);
-        System.out.println(Arrays.toString(tmpTn));
+        double[] tmpT0 = getTmd(m, 0);
+        double[] tmpTn = getTmd(m, n - 1);
         for (int i = 0; i < tmpT0.length; i++) {
             resT[i] = tmpTn[i] - tmpT0[i];
         }
@@ -191,19 +177,19 @@ public class Polynomial {
         return T;
     }
 
-    public DenseMatrix64F GetQmndd(int m, int n) // Матрица Вандермонда
+    public DenseMatrix64F getQmndd(int m, int n) // Матрица Вандермонда
     {
         DenseMatrix64F T = new DenseMatrix64F(m + 1, m + 1);
         for (int i = 0; i < m - 1; i++) {
-            double[] tm = GetTm(m, i);
+            double[] tm = getTm(m, i);
             for (int j = 0; j < tm.length; j++) {
                 T.set(j, i, tm[j]);
             }
         }
         // first derivative
         double[] resT = new double[m + 1];
-        double[] tmpT0 = GetTmd(m, 0);
-        double[] tmpTn = GetTmd(m, n - 1);
+        double[] tmpT0 = getTmd(m, 0);
+        double[] tmpTn = getTmd(m, n - 1);
         for (int i = 0; i < tmpT0.length; i++) {
             resT[i] = tmpTn[i] - tmpT0[i];
         }
@@ -212,8 +198,8 @@ public class Polynomial {
         }
         // second derivative
         resT = new double[m + 1];
-        tmpT0 = GetTmdd(m, 0);
-        tmpTn = GetTmdd(m, n - 1);
+        tmpT0 = getTmdd(m, 0);
+        tmpTn = getTmdd(m, n - 1);
         for (int i = 0; i < tmpT0.length; i++) {
             resT[i] = tmpTn[i] - tmpT0[i];
         }
@@ -223,7 +209,7 @@ public class Polynomial {
         return T;
     }
 
-    public double[] GetTm(int m, double t) {
+    public double[] getTm(int m, double t) {
         double[] tmp = new double[m + 1];
         for (int i = 0; i <= m; i++) {
             tmp[i] = Math.pow(t, i);
@@ -231,7 +217,7 @@ public class Polynomial {
         return tmp;
     }
 
-    public double[] GetTmd(int m, double t) {
+    public double[] getTmd(int m, double t) {
         double[] tmp = new double[m + 1];
         for (int i = 0; i <= m; i++) {
             double pow = Math.pow(t, i - 1);
@@ -243,7 +229,7 @@ public class Polynomial {
         return tmp;
     }
 
-    public double[] GetTmdd(int m, double t) {
+    public double[] getTmdd(int m, double t) {
         double[] tmp = new double[m + 1];
         for (int i = 0; i <= m; i++) {
             double pow = Math.pow(t, i - 2);
@@ -255,12 +241,12 @@ public class Polynomial {
         return tmp;
     }
 
-    public DenseMatrix64F GetChordQmn(int m, List<Vector2D> points) // Матрица Вандермонда
+    public DenseMatrix64F getChordQmn(int m, List<Vector2D> points) // Матрица Вандермонда
     {
         DenseMatrix64F T = new DenseMatrix64F(m + 1, m + 1);
         double length = 0;
         for (int i = 0; i <= m; i++) {
-            double[] tm = GetTm(m, length);
+            double[] tm = getTm(m, length);
             for (int j = 0; j < tm.length; j++) {
                 T.set(j, i, tm[j]);
             }
@@ -270,13 +256,13 @@ public class Polynomial {
         return T;
     }
 
-    public DenseMatrix64F GetChordQmnd(int m, List<Vector2D> points, int n) // Матрица Вандермонда
+    public DenseMatrix64F getChordQmnd(int m, List<Vector2D> points, int n) // Матрица Вандермонда
     {
         DenseMatrix64F T = new DenseMatrix64F(m + 1, m + 1);
         double length = 0;
         double nLength = 0;
         for (int i = 0; i < m; i++) {
-            double[] tm = GetTm(m, length);
+            double[] tm = getTm(m, length);
             for (int j = 0; j < tm.length; j++) {
                 T.set(j, i, tm[j]);
             }
@@ -287,9 +273,9 @@ public class Polynomial {
         }
         // first derivative
         double[] resT = new double[m + 1];
-        double[] tmpT0 = GetTmd(m, 0);
+        double[] tmpT0 = getTmd(m, 0);
         length += Math.abs(getLength(points.get(n - 1).x, points.get(n - 1).y, points.get(0).x, points.get(0).y));
-        double[] tmpTn = GetTmd(m, nLength);
+        double[] tmpTn = getTmd(m, nLength);
         for (int i = 0; i < tmpT0.length; i++) {
             resT[i] = tmpTn[i] - tmpT0[i];
         }
@@ -299,7 +285,7 @@ public class Polynomial {
         return T;
     }
 
-    public DenseMatrix64F GetChordQmndd(int m, List<Vector2D> points, int n) // Матрица Вандермонда
+    public DenseMatrix64F getChordQmndd(int m, List<Vector2D> points, int n) // Матрица Вандермонда
     {
         DenseMatrix64F T = new DenseMatrix64F(m + 1, m + 1);
         double length = 0;
@@ -308,7 +294,7 @@ public class Polynomial {
             if (i == n - 1) {
                 nLength = length;
             }
-            double[] tm = GetTm(m, length);
+            double[] tm = getTm(m, length);
             for (int j = 0; j < tm.length; j++) {
                 T.set(j, i, tm[j]);
             }
@@ -316,9 +302,9 @@ public class Polynomial {
         }
         // first derivative
         double[] resT = new double[m + 1];
-        double[] tmpT0 = GetTmd(m, 0);
+        double[] tmpT0 = getTmd(m, 0);
         length += Math.abs(getLength(points.get(n - 1).x, points.get(n - 1).y, points.get(0).x, points.get(0).y));
-        double[] tmpTn = GetTmd(m, nLength);
+        double[] tmpTn = getTmd(m, nLength);
         for (int i = 0; i < tmpT0.length; i++) {
             resT[i] = tmpTn[i] - tmpT0[i];
         }
@@ -327,9 +313,9 @@ public class Polynomial {
         }
         // second derivative
         resT = new double[m + 1];
-        tmpT0 = GetTmdd(m, 0);
+        tmpT0 = getTmdd(m, 0);
         length += Math.abs(getLength(points.get(n - 1).x, points.get(n - 1).y, points.get(0).x, points.get(0).y));
-        tmpTn = GetTmdd(m, nLength);
+        tmpTn = getTmdd(m, nLength);
         for (int i = 0; i < tmpT0.length; i++) {
             resT[i] = tmpTn[i] - tmpT0[i];
         }

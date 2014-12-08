@@ -25,7 +25,7 @@ public class TestMain {
 //        points.add(getPointInPercent(300, 100));
         Polynomial pol = new Polynomial();
         List<Vector2D> resPoints;
-        resPoints = pol.Chord(points,
+        resPoints = pol.chord(points,
                 0.01,
                 false,
                 true);
