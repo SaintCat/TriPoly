@@ -42,7 +42,7 @@ public class Polynomial {
         Ux = DenseMatrix64F.wrap(1, normalPoints.size(), tmpX);
         Uy = DenseMatrix64F.wrap(1, normalPoints.size(), tmpY);
 
-        DenseMatrix64F Qmn = new DenseMatrix64F(m + 1, m + 1);
+        DenseMatrix64F Qmn;
 
         if (secondDerivative) {
             Qmn = getQmndd(m, n);
