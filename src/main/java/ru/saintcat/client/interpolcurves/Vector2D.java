@@ -18,6 +18,11 @@ public class Vector2D {
         x = xx;
         y = yy;
     }
+    
+    public void setVector2D(Vector2D vect) {
+        x = vect.x;
+        y = vect.y;
+    }
 
     public Vector2D() {
         x = y = 0;
@@ -65,12 +70,28 @@ public class Vector2D {
         return new Vector2D(-x, -y);
     }
 
+    public double module() {
+        return Math.sqrt(x * x + y * y);
+    }
+
+    public static Vector2D minus(Vector2D a, Vector2D b) {
+        Vector2D res = new Vector2D(a.x, a.y);
+        res.add(b.neg());
+        return res;
+    }
+
+    public static Vector2D add(Vector2D a, Vector2D b) {
+        Vector2D res = new Vector2D(a.x, a.y);
+        res.add(b);
+        return res;
+    }
+
     public static double dist(Vector2D v, Vector2D u) {
         Vector2D d = new Vector2D(v.getX(), v.getY());
         d.minus(u);
         return Math.sqrt(d.getX() * d.getX() + d.getY() * d.getY());
     }
-
+    
     public static double multipl(Vector2D v, Vector2D u) {
         return v.getX() * u.getX() + v.getY() * u.getY();
     }

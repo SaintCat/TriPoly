@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.saintcat.client</groupId>
-    <artifactId>InterPolCurves</artifactId>
+    <artifactId>TriPoly</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>InterPolCurves</name>
+    <name>TriPoly</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

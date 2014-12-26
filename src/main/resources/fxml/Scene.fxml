@@ -11,44 +11,27 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" fx:id="viewPane" minWidth="-Infinity" prefHeight="633.0" prefWidth="961.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.saintcat.client.interpolcurves.CurveController">
+<AnchorPane id="AnchorPane" fx:id="viewPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="466.0" prefWidth="957.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.saintcat.client.interpolcurves.CurveController">
     <children>
-      <Label fx:id="coordinatsLabel" alignment="BOTTOM_RIGHT" layoutX="746.0" layoutY="577.0" prefHeight="81.0" prefWidth="208.0">
+      <Label fx:id="coordinatsLabel" alignment="BOTTOM_RIGHT" layoutX="404.0" layoutY="412.0" prefHeight="50.0" prefWidth="208.0">
          <font>
             <Font size="20.0" />
          </font>
       </Label>
       <Label fx:id="infoLabel" layoutX="4.0" layoutY="642.0" prefHeight="17.0" prefWidth="620.0" textFill="#e12525" />
-      <ProgressIndicator fx:id="progressIndicator" layoutX="480.0" layoutY="273.0" prefHeight="102.0" prefWidth="106.0" progress="0.0" visible="false" />
-      <ScrollPane layoutX="14.0" layoutY="14.0" prefViewportHeight="563.0" prefViewportWidth="655.0">
+      <ScrollPane layoutX="14.0" layoutY="14.0" prefHeight="398.0" prefViewportHeight="563.0" prefViewportWidth="655.0" prefWidth="804.0">
          <content>
-            <AnchorPane fx:id="paintPanel" layoutX="14.0" layoutY="14.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="563.0" prefWidth="655.0">
+            <AnchorPane fx:id="paintPanel" layoutX="14.0" layoutY="14.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="396.0" prefWidth="798.0">
                <cursor>
                   <Cursor fx:constant="CROSSHAIR" />
                </cursor>
             </AnchorPane>
          </content>
       </ScrollPane>
-      <ToggleButton fx:id="addModeButton" layoutX="14.0" layoutY="588.0" mnemonicParsing="false" onAction="#addNewModeAction" selected="true" text="Режим добавления точек" />
-      <RadioButton fx:id="normalButton" layoutX="189.0" layoutY="592.0" mnemonicParsing="false" onAction="#normalSelectAction" selected="true" text="Нормализованная" />
-      <RadioButton fx:id="chordButton" layoutX="189.0" layoutY="616.0" mnemonicParsing="false" onAction="#chordSelectAction" text="Хордовая" />
-      <RadioButton fx:id="firstDirectiveButton" layoutX="326.0" layoutY="592.0" mnemonicParsing="false" onAction="#firstDirectiveSelectAction" selected="true" text="Первая производная" />
-      <RadioButton fx:id="secondDirectiveButton" layoutX="325.0" layoutY="616.0" mnemonicParsing="false" onAction="#SecondSelectDirectiveAction" prefHeight="17.0" prefWidth="138.0" text="Вторая производная" />
-      <TableView fx:id="table" editable="true" layoutX="678.0" layoutY="14.0" prefHeight="523.0" prefWidth="276.0">
-        <columns>
-          <TableColumn prefWidth="75.0" text="Координата Х" fx:id="xCoorColumn" />
-          <TableColumn fx:id="yCoorColumn" prefWidth="75.0" text="Координата У" />
-            <TableColumn fx:id="removeColumn" prefWidth="75.0" text="Удалить" />
-        </columns>
-         <columnResizePolicy>
-            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-         </columnResizePolicy>
-      </TableView>
-      <TextField layoutX="678.0" layoutY="554.0" prefHeight="25.0" prefWidth="90.0" fx:id="xCoorTextField" />
-      <TextField fx:id="yCoorTextField" layoutX="771.0" layoutY="554.0" prefHeight="25.0" prefWidth="90.0" />
-      <Button layoutX="864.0" layoutY="554.0" mnemonicParsing="false" onAction="#addNewPointAction" prefHeight="25.0" prefWidth="90.0" text="Добавить" />
-      <CheckBox fx:id="loopCurvesButton" layoutX="521.0" layoutY="592.0" mnemonicParsing="false" onAction="#loopCurvesAction" prefHeight="17.0" prefWidth="150.0" selected="true" text="Замкнуть прямую" />
-      <CheckBox fx:id="connectCurveButton" layoutX="521.0" layoutY="616.0" mnemonicParsing="false" onAction="#connectLineAction" prefHeight="17.0" prefWidth="164.0" text="Соединять точки линией" />
-      <Button layoutX="23.0" layoutY="621.0" mnemonicParsing="false" onAction="#clearAllAction" prefHeight="25.0" prefWidth="138.0" text="Очистить все" />
+      <Button layoutX="60.0" layoutY="425.0" mnemonicParsing="false" onAction="#newPolAction" prefHeight="25.0" prefWidth="123.0" text="Сгенерировать" />
+      <Label fx:id="resultLabel" alignment="CENTER" layoutX="238.0" layoutY="412.0" prefHeight="50.0" prefWidth="173.0" text="Результат">
+         <font>
+            <Font size="20.0" />
+         </font></Label>
     </children>
 </AnchorPane>

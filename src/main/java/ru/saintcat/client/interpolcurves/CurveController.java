@@ -1,13 +1,10 @@
 package ru.saintcat.client.interpolcurves;
 
-import com.sun.prism.impl.Disposer.Record;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.ResourceBundle;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -15,18 +12,8 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -36,7 +23,7 @@ import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.util.Callback;
+import javafx.scene.shape.Polygon;
 
 public class CurveController implements Initializable {
 
@@ -45,40 +32,15 @@ public class CurveController implements Initializable {
     @FXML
     private Label coordinatsLabel;
     @FXML
-    private RadioButton normalButton;
-    @FXML
-    private RadioButton chordButton;
-    @FXML
-    private RadioButton firstDirectiveButton;
-    @FXML
-    private RadioButton secondDirectiveButton;
-    @FXML
-    private ToggleButton addModeButton;
-    @FXML
-    private CheckBox loopCurvesButton;
-    @FXML
-    private CheckBox connectCurveButton;
-    @FXML
-    private TableView<Circle> table;
-    @FXML
-    private TableColumn<Circle, Double> yCoorColumn;
-    @FXML
-    private TableColumn<Circle, Double> xCoorColumn;
-    @FXML
-    private TableColumn<Record, Boolean> removeColumn;
-    @FXML
-    private TextField xCoorTextField;
-    @FXML
-    private TextField yCoorTextField;
+    private Label resultLabel;
 
-//    private List<Circle> circles = new ArrayList<>();
     private ObservableList<Circle> circles = FXCollections.observableArrayList();
     private List<Line> lines = new ArrayList<>();
-    private List<Line> connectLines = new ArrayList<>();
-    private Polynomial polynomial = new Polynomial();
+    private List<Vector2D> points = new ArrayList<>();
+    private List<Polygon> pols = new ArrayList<>();
+    private Circle point;
 
-    private static final double DELTA = 0.05;
-    private static final int CIRCLE_SIZE = 7;
+    private static final int CIRCLE_SIZE = 6;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -88,201 +50,212 @@ public class CurveController implements Initializable {
                 coordinatsLabel.setText("X=" + t.getX() + " Y=" + t.getY());
             }
         });
-        paintPanel.addEventFilter(MouseEvent.MOUSE_CLICKED, newPointAddHandler);
-        addModeButton.setSelected(true);
-        table.setItems(circles);
-        table.setPlaceholder(new Label(""));
-        Callback<TableColumn<Circle, Double>, TableCell<Circle, Double>> cellFactory = new Callback<TableColumn<Circle, Double>, TableCell<Circle, Double>>() {
-            @Override
-            public TableCell call(TableColumn p) {
-                return new EditingCell();
+        point = createCircle("asd", Color.RED, CIRCLE_SIZE);
+        point.setTranslateX(300);
+        point.setTranslateY(300);
+        paintPanel.getChildren().add(point);
+//        newPolAction(null);
+//        List<List<Vector2D>> result = new ArrayList<>();
+//        List<Vector2D> test = new ArrayList<>();
+//        test.add(new Vector2D(0, 100));
+//        test.add(new Vector2D(100, 300));
+//        test.add(new Vector2D(200, 100));
+//        test.add(new Vector2D(100, 200));
+//        test.add(new Vector2D(0, 100));
+//        TrianglePoly.triPoly(points, result);
+//
+//        for (int i = 0; i < test.size() - 1; i++) {
+////            paintPanel.getChildren().add(new Line(test.get(i).x, test.get(i).y, test.get(i + 1).x, test.get(i + 1).y));
+//        }
+//        double shift = 0;
+//        int f = 0;
+//        Random rand = new Random();
+//        for (List<Vector2D> r : result) {
+//            int rCol1 = rand.nextInt(256);
+//            int rCol2 = rand.nextInt(256);
+//            int rCol3 = rand.nextInt(256);
+//            System.out.println("NEW VECTOR");
+//            for (int z = 0; z < r.size() - 1; z++) {
+////                System.out.print(r.get(z).x + " " + r.get(z).y + "        ");
+////                Line line = new Line(r.get(z).x+shift, r.get(z).y, r.get(z + 1).x+shift, r.get(z + 1).y);
+////                line.setStroke(Color.rgb(f, f * 10, f));
+////                paintPanel.getChildren().add(line);
+//
+//            }
+//            Polygon polygon = new Polygon();
+//            polygon.getPoints().addAll(getPoints(r));
+//            polygon.setFill(Color.rgb(rCol1, rCol2, rCol3));
+//            paintPanel.getChildren().add(polygon);
+//            System.out.println("");
+//            f++;
+//        }
+        triPolyTick();
+    }
+
+    private double shift = 0.2;
+
+    private void triPolyTick() {
+        List<List<Vector2D>> result = new ArrayList<>();
+        List<Vector2D> test = new ArrayList<>();
+        test.add(new Vector2D(300 * shift, 100 * shift));
+        test.add(new Vector2D(900 * shift, 100 * shift));
+        test.add(new Vector2D(700 * shift, 200 * shift));
+        test.add(new Vector2D(1000 * shift, 500 * shift));
+
+        test.add(new Vector2D(700 * shift, 800 * shift));
+        test.add(new Vector2D(400 * shift, 800 * shift));
+        test.add(new Vector2D(600 * shift, 1000 * shift));
+        test.add(new Vector2D(200 * shift, 900 * shift));
+        test.add(new Vector2D(300 * shift, 700 * shift));
+        test.add(new Vector2D(700 * shift, 500 * shift));
+        test.add(new Vector2D(500 * shift, 300 * shift));
+        test.add(new Vector2D(300 * shift, 400 * shift));
+        test.add(new Vector2D(400 * shift, 500 * shift));
+        test.add(new Vector2D(100 * shift, 500 * shift));
+        test.add(new Vector2D(300 * shift, 100 * shift));
+        for (int i = 0; i < test.size() - 1; i++) {
+            System.out.println("DRAW :" + test.get(i).x + " " + test.get(i).y + " " + test.get(i + 1).x + " " + test.get(i + 1).y);
+            paintPanel.getChildren().add(new Line(test.get(i).x, test.get(i).y, test.get(i + 1).x, test.get(i + 1).y));
+        }
+        TrianglePoly.triPoly(test, result);
+
+        double shift = 0;
+        int f = 0;
+        Random rand = new Random();
+        paintPanel.getChildren().removeAll(pols);
+        pols.clear();
+        for (List<Vector2D> r : result) {
+            int rCol1 = rand.nextInt(256);
+            int rCol2 = rand.nextInt(256);
+            int rCol3 = rand.nextInt(256);
+            System.out.println("NEW VECTOR");
+            for (int z = 0; z < r.size() - 1; z++) {
+//                System.out.print(r.get(z).x + " " + r.get(z).y + "        ");
+//                Line line = new Line(r.get(z).x+shift, r.get(z).y, r.get(z + 1).x+shift, r.get(z + 1).y);
+//                line.setStroke(Color.rgb(f, f * 10, f));
+//                paintPanel.getChildren().add(line);
+
             }
-        };
-
-        xCoorColumn.setCellValueFactory(new PropertyValueFactory("translateX"));
-        xCoorColumn.setCellFactory(cellFactory);
-        yCoorColumn.setCellValueFactory(new PropertyValueFactory("translateY"));
-        yCoorColumn.setCellFactory(cellFactory);
-
-        removeColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Record, Boolean>, ObservableValue<Boolean>>() {
-                    @Override
-                    public ObservableValue<Boolean> call(TableColumn.CellDataFeatures<Record, Boolean> p) {
-                        return new SimpleBooleanProperty(p.getValue() != null);
-                    }
-                });
-
-        //Adding the Button to the cell
-        removeColumn.setCellFactory(
-                new Callback<TableColumn<Record, Boolean>, TableCell<Record, Boolean>>() {
-                    @Override
-                    public TableCell<Record, Boolean> call(TableColumn<Record, Boolean> p) {
-                        return new ButtonCell();
-                    }
-
-                });
+            Polygon polygon = new Polygon();
+            polygon.getPoints().addAll(getPoints(r));
+            polygon.setFill(Color.rgb(rCol1, rCol2, rCol3));
+            pols.add(polygon);
+            paintPanel.getChildren().add(polygon);
+            System.out.println("");
+            f++;
+        }
     }
 
     private void timeTick() {
-        if (circles.size() <= 2) {
-            paintPanel.getChildren().removeAll(lines);
-            lines.clear();
-            return;
+        int res = octTest(points, new Point2D(point.getTranslateX(), point.getTranslateY()));
+        switch (res) {
+            case 0:
+                resultLabel.setText("На границе");
+                break;
+            case -1:
+                resultLabel.setText("Внутри полигона");
+                break;
+            case 1:
+                resultLabel.setText("Вне полигона");
+                break;
+            default:
+                resultLabel.setText("");
         }
-        paintPanel.getChildren().removeAll(lines);
-        lines.clear();
-        List<Vector2D> points = getPointsFromCoords();
-        List<Vector2D> resPoints = normalButton.isSelected() ? polynomial.normal(points, DELTA, secondDirectiveButton.isSelected(),
-                loopCurvesButton.isSelected()) : polynomial.chord(points, DELTA, secondDirectiveButton.isSelected(), loopCurvesButton.isSelected());
-        for (int i = 0; i < resPoints.size() - 1; i++) {
-            Vector2D current = getPointInCoord(resPoints.get(i));
-            Vector2D next = getPointInCoord(resPoints.get(i + 1));
-            Line line = new Line(current.x, current.y, next.x, next.y);
-            line.setStroke(Color.RED);
-            lines.add(line);
-        }
-        paintPanel.getChildren().addAll(lines);
+
     }
 
-    private List<Vector2D> getPointsFromCoords() {
-        List<Vector2D> points = new ArrayList<>();
-        for (Circle circle : circles) {
-            points.add(getPointInPercent(circle.getTranslateX(), circle.getTranslateY()));
-        }
-        return points;
-    }
-
-    @FXML
-    void addNewPointAction(ActionEvent event) {
-        Double x;
-        Double y;
-        try {
-            x = Double.valueOf(xCoorTextField.getText());
-        } catch (Exception e) {
-            xCoorTextField.clear();
-            return;
-        }
-        try {
-            y = Double.valueOf(yCoorTextField.getText());
-        } catch (Exception e) {
-            yCoorTextField.clear();
-            return;
-        }
-        xCoorTextField.clear();
-        yCoorTextField.clear();
-        final Circle circleSmall = createCircle("Blue circle", Color.DODGERBLUE, CIRCLE_SIZE);
-        circleSmall.setTranslateX(x);
-        circleSmall.setTranslateY(y);
-        paintPanel.getChildren().add(circleSmall);
-        if (connectCurveButton.isSelected() && circles.size() >= 1) {
-            Circle first = circles.get(circles.size() - 1);
-            Line line = new Line(first.getTranslateX(), first.getTranslateY(), circleSmall.getTranslateX(), circleSmall.getTranslateY());
-            line.startXProperty().bindBidirectional(first.translateXProperty());
-            line.startYProperty().bindBidirectional(first.translateYProperty());
-            line.endXProperty().bindBidirectional(circleSmall.translateXProperty());
-            line.endYProperty().bindBidirectional(circleSmall.translateYProperty());
-            paintPanel.getChildren().add(line);
-            connectLines.add(line);
-        }
-        circles.add(circleSmall);
-        timeTick();
-    }
-
-    @FXML
-    void addNewModeAction(ActionEvent event) {
-        if (((ToggleButton) event.getSource()).isSelected()) {
-            paintPanel.addEventFilter(MouseEvent.MOUSE_CLICKED, newPointAddHandler);
-        } else {
-            paintPanel.removeEventFilter(MouseEvent.MOUSE_CLICKED, newPointAddHandler);
-        }
-    }
-
-    @FXML
-    void loopCurvesAction(ActionEvent event) {
-        timeTick();
-    }
-
-    @FXML
-    void connectLineAction(ActionEvent event) {
-        if (connectCurveButton.isSelected()) {
-            for (int i = 0; i < circles.size() - 1; i++) {
-                Circle first = circles.get(i);
-                Circle next = circles.get(i + 1);
-                Line line = new Line(first.getTranslateX(), first.getTranslateY(), next.getTranslateX(), next.getTranslateY());
-                line.startXProperty().bindBidirectional(first.translateXProperty());
-                line.startYProperty().bindBidirectional(first.translateYProperty());
-                line.endXProperty().bindBidirectional(next.translateXProperty());
-                line.endYProperty().bindBidirectional(next.translateYProperty());
-                paintPanel.getChildren().add(line);
-                connectLines.add(line);
+    private int octTest(List<Vector2D> P, Point2D q) {
+        double s = 0;
+        int w = 0;
+        for (int i = 0; i < P.size(); i++) {
+            Vector2D pp = P.get(i);
+            int v = oct(pp.getX() - q.getX(), pp.getY() - q.getY());
+            if (v == 0) {
+                return 0;
             }
-        } else {
-            paintPanel.getChildren().removeAll(connectLines);
-            connectLines.clear();
-        }
-    }
-
-    @FXML
-    void normalSelectAction(ActionEvent event) {
-        normalButton.setSelected(true);
-        chordButton.setSelected(false);
-        timeTick();
-
-    }
-
-    @FXML
-    void clearAllAction(ActionEvent event) {
-        paintPanel.getChildren().removeAll(circles);
-        circles.clear();
-        paintPanel.getChildren().removeAll(lines);
-        lines.clear();
-        paintPanel.getChildren().removeAll(connectLines);
-        connectLines.clear();
-    }
-
-    @FXML
-    void chordSelectAction(ActionEvent event) {
-        normalButton.setSelected(false);
-        chordButton.setSelected(true);
-        timeTick();
-    }
-
-    @FXML
-    void firstDirectiveSelectAction(ActionEvent event) {
-        firstDirectiveButton.setSelected(true);
-        secondDirectiveButton.setSelected(false);
-        timeTick();
-    }
-
-    @FXML
-    void SecondSelectDirectiveAction(ActionEvent event) {
-        firstDirectiveButton.setSelected(false);
-        secondDirectiveButton.setSelected(true);
-        timeTick();
-    }
-
-    EventHandler<MouseEvent> newPointAddHandler = new EventHandler<MouseEvent>() {
-
-        @Override
-        public void handle(MouseEvent t) {
-            final Circle circleSmall = createCircle("Blue circle", Color.DODGERBLUE, CIRCLE_SIZE);
-            circleSmall.setTranslateX(t.getX());
-            circleSmall.setTranslateY(t.getY());
-            paintPanel.getChildren().add(circleSmall);
-            if (connectCurveButton.isSelected() && circles.size() >= 1) {
-                Circle first = circles.get(circles.size() - 1);
-                Line line = new Line(first.getTranslateX(), first.getTranslateY(), circleSmall.getTranslateX(), circleSmall.getTranslateY());
-                line.startXProperty().bindBidirectional(first.translateXProperty());
-                line.startYProperty().bindBidirectional(first.translateYProperty());
-                line.endXProperty().bindBidirectional(circleSmall.translateXProperty());
-                line.endYProperty().bindBidirectional(circleSmall.translateYProperty());
-                paintPanel.getChildren().add(line);
-                connectLines.add(line);
+            if (i == 0) {
+                w = v;
+                continue;
             }
-            circles.add(circleSmall);
-            timeTick();
+            int delta = v - w;
+            if (Math.abs(delta) < 4) {
+                s += delta;
+                w = v;
+                continue;
+            }
+
+            if (Math.abs(delta) > 4) {
+                delta = delta - 8 * sign(delta);
+                s += delta;
+                w = v;
+                continue;
+            }
+            double f = nf2(P.get(i - 1), pp, q);
+            if (f == 0) {
+                return 0;
+            }
+            delta = -4 * sign(f);
+            s += delta;
+            w = v;
         }
-    };
+        return 1 - 2 * sign((s));
+    }
+
+    private double nf2(Vector2D a, Vector2D b, Point2D p) {
+        double[][] first = new double[1][2];
+        first[0][0] = p.getX() - a.getX();
+        first[0][1] = p.getY() - a.getY();
+
+        double[][] second = new double[2][1];
+        second[0][0] = b.getY() - a.getY();
+        second[1][0] = -(b.getX() - a.getX());
+
+        double[][] res = MatrixOperations.multiply(first, second);
+        System.out.println(res.length + " " + res[0].length);
+        return res[0][0];
+    }
+
+    private int sign(double x) {
+        if (x > 0) {
+            return 1;
+        }
+        if (x < 0) {
+            return -1;
+        }
+        return 0;
+    }
+
+    private int oct(double x, double y) {
+        if (x == 0 && y == 0) {
+            return 0;
+        }
+        if (0 <= y && y < x) {
+            return 1;
+        }
+        if (0 < x && x <= y) {
+            return 2;
+        }
+        if (-x <= y && y < 0) {
+            return 8;
+        }
+        if (0 <= x && x < -y) {
+            return 7;
+        }
+        if (0 < y && y <= -x) {
+            return 4;
+        }
+        if (-y < x && x <= 0) {
+            return 3;
+        }
+        if (x < y && y <= 0) {
+            return 5;
+        }
+        if (y <= x && x < 0) {
+            return 6;
+        }
+
+        return -100;
+    }
 
     private double initX;
     private double initY;
@@ -298,12 +271,10 @@ public class CurveController implements Initializable {
         circle.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent me) {
                 me.consume();
-                table.getFocusModel().focus(circles.indexOf(circle));
             }
         });
         circle.setOnMouseDragged(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent me) {
-                table.getFocusModel().focus(circles.indexOf(circle));
                 double dragX = me.getSceneX() - dragAnchor.getX();
                 double dragY = me.getSceneY() - dragAnchor.getY();
                 double newXPosition = initX + dragX;
@@ -319,9 +290,6 @@ public class CurveController implements Initializable {
         });
         circle.setOnMouseEntered(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent me) {
-                if (addModeButton.isSelected()) {
-                    paintPanel.removeEventFilter(MouseEvent.MOUSE_CLICKED, newPointAddHandler);
-                }
                 circle.toFront();
             }
         });
@@ -329,9 +297,6 @@ public class CurveController implements Initializable {
 
             @Override
             public void handle(MouseEvent t) {
-                if (addModeButton.isSelected()) {
-                    paintPanel.addEventFilter(MouseEvent.MOUSE_CLICKED, newPointAddHandler);
-                }
             }
 
         });
@@ -346,113 +311,46 @@ public class CurveController implements Initializable {
         return circle;
     }
 
-    private Vector2D getPointInPercent(double x, double y) {
-        return new Vector2D((double) x / paintPanel.getPrefWidth(), (double) (y) / paintPanel.getPrefHeight());
+    private List<Vector2D> apoly(Vector2D T, int a, int b, int O) {
+        List<Vector2D> res = new ArrayList<>();
+        double fi = 0;
+        while (fi < 360) {
+            double d = a + Rand.nextInt(b - a);
+            double dx = T.x + d * Math.cos(fi * Math.PI / 180);
+            double dy = T.y + d * Math.sin(fi * Math.PI / 180);
+            System.out.println(dx + " " + dy);
+            res.add(new Vector2D(dx, dy));
+            System.out.println(fi);
+            fi = fi + Rand.nextInt(O);
+        }
+        return res;
+    }
+    private static Random Rand = new Random();
+
+    @FXML
+    void newPolAction(ActionEvent event) {
+        points.clear();
+        paintPanel.getChildren().removeAll(lines);
+        lines.clear();
+        List<Vector2D> pol = apoly(new Vector2D(paintPanel.getPrefWidth() / 2 - 100, paintPanel.getPrefHeight() / 2), 100, 150, 100);
+        points.addAll(pol);
+        points.add(pol.get(0));
+        for (int i = 0; i < points.size() - 1; i++) {
+            Line line = new Line(points.get(i).getX(), points.get(i).getY(), points.get(i + 1).getX(), points.get(i + 1).getY());
+            lines.add(line);
+            paintPanel.getChildren().add(line);
+        }
+        timeTick();
+        triPolyTick();
     }
 
-    private Vector2D getPointInCoord(Vector2D v) {
-        return new Vector2D(v.x * paintPanel.getPrefWidth(), v.y * paintPanel.getPrefHeight());
-    }
-
-    class EditingCell extends TableCell<Circle, Double> {
-
-        private TextField textField;
-
-        public EditingCell() {
-            setAlignment(Pos.CENTER);
+    public static List<Double> getPoints(List<Vector2D> vect) {
+        List<Double> res = new ArrayList<>();
+        int z = 0;
+        for (Vector2D v : vect) {
+            res.add(v.x + 300);
+            res.add(v.y);
         }
-
-        @Override
-        public void startEdit() {
-            if (!isEmpty()) {
-                super.startEdit();
-                createTextField();
-                setText(null);
-                setGraphic(textField);
-                textField.selectAll();
-            }
-        }
-
-        @Override
-        public void cancelEdit() {
-            super.cancelEdit();
-
-            setText(getItem().toString());
-            setGraphic(null);
-        }
-
-        @Override
-        public void updateItem(Double item, boolean empty) {
-            super.updateItem(item, empty);
-
-            if (empty) {
-                setText(null);
-                setGraphic(null);
-            } else {
-                if (isEditing()) {
-                    if (textField != null) {
-                        textField.setText(getString());
-                    }
-                    setText(null);
-                    setGraphic(textField);
-                } else {
-                    setText(getString());
-                    setGraphic(null);
-                }
-            }
-        }
-
-        private void createTextField() {
-            textField = new TextField(getString());
-            textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-            textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
-                @Override
-                public void changed(ObservableValue<? extends Boolean> arg0,
-                        Boolean arg1, Boolean arg2) {
-                    if (!arg2) {
-                        try {
-                            Double val = Double.valueOf(textField.getText());
-                            commitEdit(val);
-                            timeTick();
-                        } catch (Exception e) {
-                        }
-                    }
-                }
-            });
-            textField.setAlignment(Pos.CENTER);
-        }
-
-        private String getString() {
-            return getItem() == null ? "" : getItem().toString();
-        }
-    }
-
-    private class ButtonCell extends TableCell<Record, Boolean> {
-
-        final Button cellButton = new Button("Удалить");
-
-        public ButtonCell() {
-            //Action when the button is pressed
-            cellButton.setOnAction(new EventHandler<ActionEvent>() {
-
-                @Override
-                public void handle(ActionEvent t) {
-                    Circle current = (Circle) ButtonCell.this.getTableView().getItems().get(ButtonCell.this.getIndex());
-                    paintPanel.getChildren().remove(current);
-                    circles.remove(current);
-                    timeTick();
-                }
-            });
-            setAlignment(Pos.CENTER);
-        }
-
-        //Display button if the row is not empty
-        @Override
-        protected void updateItem(Boolean t, boolean empty) {
-            super.updateItem(t, empty);
-            if (!empty) {
-                setGraphic(cellButton);
-            }
-        }
+        return res;
     }
 }
