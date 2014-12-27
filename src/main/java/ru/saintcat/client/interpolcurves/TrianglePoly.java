@@ -18,9 +18,9 @@ import java.util.List;
  */
 public class TrianglePoly {
 
-    public static int triPoly(List<Vector2D> A, List<List<Vector2D>> triangles) {
-        System.out.println("NEW" + " " + A.size());
-        List<Vector2D> P = cloneList(A);
+    public static int triPoly(List<Vector2D> P, List<List<Vector2D>> triangles) {
+        System.out.println("NEW" + " " + P.size());
+//        List<Vector2D> P = cloneList(A);
         for (Vector2D asd : P) {
             System.out.print(asd.x + " " + asd.y + "            ");
         }
@@ -95,11 +95,11 @@ public class TrianglePoly {
         double[][] matrix = new double[][]{{deltaXFirst, deltaYFirst}, {deltaXSec, deltaYSec}};
         int val = MatrixOperations.invert(matrix);
         if (val == 0) {
-            return 0;
+            return -1;
         }
         double[][] res = MatrixOperations.multiply(new double[][]{{c.getX() - a.getX(), c.getY() - a.getY()}}, matrix);
 
-        return (((0 <= res[0][0] && res[0][0] <= 1) ? 1 : 0) & ((0 <= res[0][1] && res[0][1] <= 1) ? 1 : 0));
+        return (((0 <= res[0][0] && res[0][0] <= 1) ? 1 : 0) * ((0 <= res[0][1] && res[0][1] <= 1) ? 1 : 0));
     }
 
     public static void resurnFunction(List<Vector2D> P, int k, int n, List<List<Vector2D>> triangles) {
@@ -155,7 +155,7 @@ public class TrianglePoly {
         List<Vector2D> res = new ArrayList<>();
         if (nf2(P.get(m - 1), P.get(0), P.get(1)) == 0) {
             res.add(P.get(1));
-            for (int j = 2; j <= m; j++) {
+            for (int j = 2; j < m; j++) {
                 res.add(P.get(j));
             }
             res.add(P.get(1));
@@ -200,7 +200,7 @@ public class TrianglePoly {
         if (MatrixOperations.det(new double[][]{{V.x, V.y}, {W.x, W.y}}) >= 0) {
             positive = true;
         }
-        return (positive ? 1 : -1) * Math.acos(Vector2D.dist(V, W) / (V.module() + W.module()));
+        return (positive ? 1 : -1) * Math.acos(Vector2D.multipl(V, W) / (V.module() * W.module()));
     }
 
     public static double nf2(Vector2D a, Vector2D b, Vector2D p) {
