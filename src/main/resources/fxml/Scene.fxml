@@ -11,14 +11,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" fx:id="viewPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="466.0" prefWidth="957.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.saintcat.client.interpolcurves.CurveController">
+<AnchorPane id="AnchorPane" fx:id="viewPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="466.0" prefWidth="831.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.saintcat.client.interpolcurves.CurveController">
     <children>
-      <Label fx:id="coordinatsLabel" alignment="BOTTOM_RIGHT" layoutX="404.0" layoutY="412.0" prefHeight="50.0" prefWidth="208.0">
-         <font>
-            <Font size="20.0" />
-         </font>
-      </Label>
-      <Label fx:id="infoLabel" layoutX="4.0" layoutY="642.0" prefHeight="17.0" prefWidth="620.0" textFill="#e12525" />
       <ScrollPane layoutX="14.0" layoutY="14.0" prefHeight="398.0" prefViewportHeight="563.0" prefViewportWidth="655.0" prefWidth="804.0">
          <content>
             <AnchorPane fx:id="paintPanel" layoutX="14.0" layoutY="14.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="396.0" prefWidth="798.0">
@@ -28,8 +22,8 @@
             </AnchorPane>
          </content>
       </ScrollPane>
-      <Button layoutX="60.0" layoutY="425.0" mnemonicParsing="false" onAction="#newPolAction" prefHeight="25.0" prefWidth="123.0" text="Сгенерировать" />
-      <Label fx:id="resultLabel" alignment="CENTER" layoutX="238.0" layoutY="412.0" prefHeight="50.0" prefWidth="173.0" text="Результат">
+      <Button layoutX="62.0" layoutY="421.0" mnemonicParsing="false" onAction="#newPolAction" prefHeight="33.0" prefWidth="158.0" text="Сгенерировать" />
+      <Label fx:id="resultLabel" layoutX="238.0" layoutY="412.0" prefHeight="50.0" prefWidth="447.0" text="Результат">
          <font>
             <Font size="20.0" />
          </font></Label>
