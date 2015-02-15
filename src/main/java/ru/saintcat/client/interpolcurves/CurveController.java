@@ -5,24 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
-import javafx.scene.Cursor;
 import javafx.scene.control.Label;
-import javafx.scene.effect.InnerShadow;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.RadialGradient;
-import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
@@ -46,18 +37,19 @@ public class CurveController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        newPolAction(null);
+//        newPolAction(null);
+        triPolyTick();
     }
 
-    private double shift = 0.2;
+    private double shift = 1;
 
     private void triPolyTick() {
         List<List<Vector2D>> result = new ArrayList<>();
-//        List<Vector2D> test = new ArrayList<>();
-//        test.add(new Vector2D(300 * shift, 100 * shift));
-//        test.add(new Vector2D(900 * shift, 100 * shift));
-//        test.add(new Vector2D(700 * shift, 200 * shift));
-//        test.add(new Vector2D(1000 * shift, 500 * shift));
+        List<Vector2D> test = new ArrayList<>();
+        test.add(new Vector2D(100 * shift, 100 * shift));
+        test.add(new Vector2D(400 * shift, 100 * shift));
+        test.add(new Vector2D(200 * shift, 200 * shift));
+//        test.add(new Vector2D(600 * shift, 300 * shift));
 //
 //        test.add(new Vector2D(700 * shift, 800 * shift));
 //        test.add(new Vector2D(400 * shift, 800 * shift));
@@ -70,36 +62,35 @@ public class CurveController implements Initializable {
 //        test.add(new Vector2D(400 * shift, 500 * shift));
 //        test.add(new Vector2D(100 * shift, 500 * shift));
 //        test.add(new Vector2D(300 * shift, 100 * shift));
-//        for (int i = 0; i < test.size() - 1; i++) {
-//            System.out.println("DRAW :" + test.get(i).x + " " + test.get(i).y + " " + test.get(i + 1).x + " " + test.get(i + 1).y);
-//            paintPanel.getChildren().add(new Line(test.get(i).x, test.get(i).y, test.get(i + 1).x, test.get(i + 1).y));
+        paintPanel.getChildren().add(new Circle(471.35, 70.6, 10));
+        for (int i = 0; i < test.size() - 1; i++) {
+            System.out.println("DRAW :" + test.get(i).x + " " + test.get(i).y + " " + test.get(i + 1).x + " " + test.get(i + 1).y);
+            Line line = new Line(test.get(i).x, test.get(i).y, test.get(i + 1).x, test.get(i + 1).y);
+            line.setStroke(Color.RED);
+            paintPanel.getChildren().add(line);
+        }
+        List<Vector2D> asd = Equidistant.getEquidistantLine(test, 30);
+        for (int i = 0; i < asd.size() - 1; i++) {
+            System.out.println("DRAW22 :" + asd.get(i).x + " " + asd.get(i).y + " " + asd.get(i + 1).x + " " + asd.get(i + 1).y);
+            paintPanel.getChildren().add(new Line(asd.get(i).x, asd.get(i).y, asd.get(i + 1).x, asd.get(i + 1).y));
+        }
+//        double shift = 0;
+//        int f = 0;
+//        Random rand = new Random();
+//        paintPanel.getChildren().removeAll(pols);
+//        pols.clear();
+//        for (List<Vector2D> r : result) {
+//            int rCol1 = rand.nextInt(256);
+//            int rCol2 = rand.nextInt(256);
+//            int rCol3 = rand.nextInt(256);
+//            Polygon polygon = new Polygon();
+//            polygon.getPoints().addAll(getPoints(r));
+//            polygon.setFill(Color.rgb(rCol1, rCol2, rCol3));
+//            pols.add(polygon);
+//            paintPanel.getChildren().add(polygon);
+//            System.out.println("");
+//            f++;
 //        }
-        try {
-            //        TrianglePoly.triPoly(test, result);
-            result = TrianglePoly.triIteratePoly(points);
-            resultLabel.setText("Результат " + result.size() + " треугольника(ов)");
-        } catch (Exception ex) {
-            newPolAction(null);
-//            triPolyTick();
-            return;
-        }
-        double shift = 0;
-        int f = 0;
-        Random rand = new Random();
-        paintPanel.getChildren().removeAll(pols);
-        pols.clear();
-        for (List<Vector2D> r : result) {
-            int rCol1 = rand.nextInt(256);
-            int rCol2 = rand.nextInt(256);
-            int rCol3 = rand.nextInt(256);
-            Polygon polygon = new Polygon();
-            polygon.getPoints().addAll(getPoints(r));
-            polygon.setFill(Color.rgb(rCol1, rCol2, rCol3));
-            pols.add(polygon);
-            paintPanel.getChildren().add(polygon);
-            System.out.println("");
-            f++;
-        }
     }
 
     private int octTest(List<Vector2D> P, Point2D q) {
@@ -194,7 +185,6 @@ public class CurveController implements Initializable {
 
         return -100;
     }
-
 
     private List<Vector2D> apoly(Vector2D T, int a, int b, int O) {
         List<Vector2D> res = new ArrayList<>();

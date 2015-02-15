@@ -18,7 +18,22 @@ public class Vector2D {
         x = xx;
         y = yy;
     }
-    
+
+    public Vector2D normal() {
+        Vector2D res = new Vector2D();
+        double length = this.module();
+        res.x = this.x / length;
+        res.y = this.y / length;
+        return res;
+    }
+
+    public Vector2D rRot() {
+        Vector2D res = new Vector2D();
+        res.x = this.y;
+        res.y = -this.x;
+        return res;
+    }
+
     public void setVector2D(Vector2D vect) {
         x = vect.x;
         y = vect.y;
@@ -91,7 +106,7 @@ public class Vector2D {
         d.minus(u);
         return Math.sqrt(d.getX() * d.getX() + d.getY() * d.getY());
     }
-    
+
     public static double multipl(Vector2D v, Vector2D u) {
         return v.getX() * u.getX() + v.getY() * u.getY();
     }
